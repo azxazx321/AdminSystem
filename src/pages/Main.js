@@ -1,9 +1,9 @@
-import { DoubleLeftOutlined,DoubleRightOutlined,HomeOutlined,GoldOutlined,PlusOutlined,MobileOutlined,TableOutlined,UserOutlined,AppstoreOutlined } from '@ant-design/icons';
+import { DoubleLeftOutlined,DoubleRightOutlined,HomeOutlined,GoldOutlined,PlusOutlined,MobileOutlined,TableOutlined,UserOutlined,AppstoreOutlined, createFromIconfontCN, QuestionCircleOutlined, PoweroffOutlined } from '@ant-design/icons';
 import { useForm } from 'antd/es/form/Form'
 import React, { useEffect, useState } from 'react'
 import {Link ,Outlet, useNavigate, useSearchParams } from 'react-router-dom'
-import { adminInfo, base } from '../service'
-import { Button, Col, Divider, Dropdown, Form, Input, Layout, Menu, Modal, Row, Space, Typography } from 'antd'
+import { adminInfo, adminUpdatePwd, base } from '../service'
+import { Button, Col, Divider, Dropdown, Form, Input, Layout, Menu, Modal, Popover, Row, Space, Typography, message } from 'antd'
 import Sider from 'antd/es/layout/Sider';
 import { Content, Header } from 'antd/es/layout/layout';
 
@@ -17,6 +17,10 @@ let iconMap = {
   'layers':<AppstoreOutlined />
 }
 
+let IconFont = createFromIconfontCN({
+  scriptUrl:'//at.alicdn.com/t/c/font_4024563_j8fb8jmpbwr.js'
+})
+
 export default function Main() {
   let nav = useNavigate()
   let [collapsed, setCollapsed] = useState(false)
@@ -24,6 +28,20 @@ export default function Main() {
   let [menuItems, setMenuItems] = useState([])
   let [showModalModifyPwd, setShowModalModifyPwd] = useState(false)
 
+  let [themeColor,setThemeColor] =  useState('#2483d2');
+  //主题颜色列表
+  let [themeColorList,setThemeColorList] = useState([
+    '#2483d2',
+    '#EF3E5B',
+    '#6F5495',
+    '#688FAD',
+    '#95D47A',
+    '#52CCCE',
+    '#677C8A',
+  ])
+  
+  
+  
   let [modifyPwdForm] = useForm()
 
   let generateMenuItems = (list) => {
@@ -59,16 +77,60 @@ export default function Main() {
     nav(url)
   }
 
+  let submitModifyPwd = async ({oldPwd,newPwd,repeatPwd}) => {
+    if(oldPwd == null || oldPwd.length<6){
+      message.error("旧密码长度不足!")
+      return;
+    }
+    if(newPwd == null || newPwd.length<6){
+      message.error("新密码长度不足!")
+      return;
+    }
+    if(repeatPwd == null || repeatPwd.length<6){
+      message.error("重复密码长度不足!")
+      return;
+    }
+    if(oldPwd == newPwd){
+      message.error("新旧密码不允许相同!")
+      return;
+    }
+    if(newPwd !== repeatPwd){
+      message.error("两次密码不一致!")
+      return;
+    }
+
+    let data = await adminUpdatePwd(oldPwd, newPwd)
+    if(data.code === 2000) {
+      delete localStorage["adminToken"]
+
+      Modal.success({
+        title: "sucessfully",
+        content: "password has been updated successfully",
+        okText: "Confirm",
+        onOk: () => {
+          nav("/login")
+        }
+      })
+      //return;
+    } else {
+      Modal.error({
+        title:'error',
+        content:"error" + data.msg,
+        okText: "confirm"
+      })
+      //return;
+    }
+  }
+
   return (
     <>
 
     <Layout>
       <Sider
-        collapsible
         collapsed={collapsed}
         trigger={null}
         style={{
-          backgroundColor:'#2483d2',
+            backgroundColor:themeColor,
             minHeight:'100vh',
             color:'#fff',
             padding:'6px'
@@ -84,7 +146,7 @@ export default function Main() {
       <Layout>
         <Header
           style={{
-            backgroundColor:'#2483d2',
+            backgroundColor:themeColor,
             color:'#fff',
             borderLeft: '1px solid #fff'
           }}
@@ -148,9 +210,71 @@ export default function Main() {
                           </Button>
                       </Dropdown>
                       </div>
-                      <Button></Button>
-                      <Button></Button>
-                      <Button></Button>
+                      <div>
+                        <IconFont 
+                          type='icon-colors'
+                          style={{color:'#fff', fontSize:'28px', verticalAlign:'middle'}} 
+                        />
+                        <Popover 
+                          content={
+                            <Space>
+                              {
+                                themeColorList.map((color,index)=>{
+                                  return(
+                                    <Button 
+                                      style={{
+                                        width: '60px',
+                                        height: '30px',
+                                        backgroundColor:color,
+                                        borderWidth: '0px'
+                                      }}
+                                      key={index}
+                                      onClick={()=>{setThemeColor(color)}}
+                                    />
+                                  )
+                                })
+                              }
+                            </Space>
+                          }
+                        >
+                        <Button type='text' style={{color:'#fff'}}>Change Theme</Button>
+                        </Popover>
+                      </div>
+                      <div>
+                        <QuestionCircleOutlined 
+                          style={{color:'#fff',fontSize:'26px',verticalAlign:'middle'}}
+                        />
+                        <Dropdown
+                          menu={{
+                            items: [
+                              {key:'1',label:'Help Docs'},
+                              {key:'2',label:'About System'}
+                            ]
+                          }}
+                          >
+                            <Button type='text' style={{color:'#fff'}}>Help</Button>
+
+                          </Dropdown>
+                      </div>
+
+                      <div>
+                          <PoweroffOutlined
+                            style={{color:'#fff',fontSize:'26px',verticalAlign:'middle'}}
+                            onClick={()=>{
+                              Modal.confirm({
+                                centered: true,
+                                title:'Confirm',
+                                content:'Are you sure you want to quit this system?',
+                                onOk: ()=>{
+                                  delete localStorage['adminToken']
+                                  nav('/login')
+                                }
+                              })
+                            }}
+                          
+                          />
+                      </div>
+                      
                   </Space>
               </Col>
             </Row>
@@ -158,25 +282,36 @@ export default function Main() {
         </Header>
 
         <Content>
-          
-          <Modal
+          <Outlet />
+        
+        </Content>
+
+
+      </Layout>
+
+    </Layout>
+    <Modal
             title='change password'
             open={showModalModifyPwd}
             onOk={
               ()=>{
-                console.log('ok')
+                modifyPwdForm.submit()
               }
             }
             onCancel={
               () => {
-                setShowModalModifyPwd(false);
+                modifyPwdForm.resetFields()
+                setShowModalModifyPwd(false)
               }
             }
           >
             <Divider>
               <Form
+                form={modifyPwdForm}
                 labelCol={{span:4}}
                 wrapperCol={{span:20}}
+                onFinish={(submitModifyPwd)}
+
               >
                 <Form.Item name='oldPwd' label='旧密码:'>
                   <Input.Password placeholder='请输入旧密码'/>
@@ -190,13 +325,6 @@ export default function Main() {
               </Form>
             </Divider>
         </Modal>
-        </Content>
-
-
-      </Layout>
-
-    </Layout>
-      
 
     </>
   )

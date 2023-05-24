@@ -249,7 +249,7 @@ export default function Resident() {
         onOk={()=>{setShowBatchAdd(false)}}
         onCancel={()=>{setShowBatchAdd(false)}}
       >
-        <Upload {...prop}>
+        <Upload>
           <Button icon={<UploadOutlined />}>Upload Excel</Button>
         </Upload>
       </Modal>

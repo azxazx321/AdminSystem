@@ -5,9 +5,7 @@ import { adminLogin } from '../service'
 
 export default function Login() {
     let nav = useNavigate()
-    // function fx(){
-    //     nav("/main")
-    // }
+
 
     async function doLogin({adminName,adminPwd,remember}){
         if(remember){
@@ -27,7 +25,7 @@ export default function Login() {
         }
         adminPwd = adminPwd.trim();
         if(adminPwd.length<6 || adminPwd.length>24){
-            message.error("密码格式不正确!",4)
+            message.error("password length is not right!",4)
             return;
         }
 

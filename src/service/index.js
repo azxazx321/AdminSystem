@@ -130,6 +130,28 @@ export let adminHouseholdAdd = async (resident) => {
     return data
 }
 
+
+export let adminHouseholdUpdate = async (resident) => {
+    let url = base + 'admin/household/update'
+
+    let options = {
+        method: 'POST',
+        headers: {
+            token: localStorage['adminToken'],
+            'Content-Type':'application/json'
+        },
+        body: JSON.stringify(resident),
+    }
+    nProgress.start()
+
+    let res = await fetch(url,options)
+    let data = await res.json()
+
+    nProgress.done()
+
+    return data
+}
+
 export let adminHouseholdBatchDelete = async (keys)=>{
     let url = base + 'admin/household/batch/delete'
     let options = {

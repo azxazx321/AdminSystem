@@ -233,6 +233,7 @@ export default function Resident() {
       <ResidentUpdateModal
         show={showRegidentUpdateModal}
         hid={residentId}
+        refresh={()=>{loadData(1)}}
         setSRU={setShowRegidentUpdateModal}
       />
       <ResidentAddModal

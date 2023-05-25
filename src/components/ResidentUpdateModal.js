@@ -1,29 +1,44 @@
-import { Divider, Form, Input, Modal, Radio } from 'antd'
-import React, { useEffect, useState } from 'react'
-import { adminHouseholdDetails } from '../service';
+import { Divider, Form, Input, Modal, Radio, message } from 'antd'
+import React, { useEffect } from 'react'
+import { adminHouseholdDetails, adminHouseholdUpdate } from '../service';
 import { useForm } from 'antd/es/form/Form';
 
-export default function ResidentUpdateModal({show,hid,setSRU}) {
+export default function ResidentUpdateModal({show,hid,setSRU,refresh}) {
   let [updateForm] = useForm();
 
   useEffect(()=>{
     if(show){
       (async ()=>{
         let data = await adminHouseholdDetails(hid);
-        console.log(data)
         updateForm.setFieldsValue(data)
       })()
     }
   },[show])
 
+  let submitUpdate = async (resident)=>{
+    console.log(resident)
+    let data = await adminHouseholdUpdate(resident)
+    if(data.code === 2000){
+      //--提示成功
+      message.success("Updated!");
+      //--关闭模态对话框
+      setSRU(false)
+      //--更新表格
+      refresh();
+      return;
+    }else{
+      Modal.error({
+        title:'错误',
+        content:'更新失败!服务器返回错误消息:'+data.msg,
+        okText:'确定',
+        cancelText:'取消'
+      })
+    }
+  }
   return (
     <Modal 
       open={show}
-      onOk={
-        () => {
-          setSRU(false)
-        }
-      }
+      onOk={()=>{updateForm.submit() }}
       onCancel={
         () => {
           setSRU(false)
@@ -34,6 +49,8 @@ export default function ResidentUpdateModal({show,hid,setSRU}) {
       <Form
         form={updateForm}
         labelCol={{span:5}}
+        onFinish={submitUpdate}
+
       >
         <Form.Item 
         label='hid'

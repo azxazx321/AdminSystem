@@ -64,8 +64,8 @@ export default function Login() {
                             <Image src='img/u794.jpg' width={200} preview={false}/>
                             <Divider type='vertical' style={{backgroundColor: '#3f9bde', height: '40vh'}}/>
                             <Form 
-                                labelCol={{span:8}}
-                                wrapperCol={{span:16}}
+                                labelCol={{span:16}}
+                                wrapperCol={{span:8}}
                                 style={{paddingTop: '35px'}}
                                 onFinish={doLogin}
                                 initialValues={{

@@ -308,19 +308,20 @@ export default function Main() {
             <Divider>
               <Form
                 form={modifyPwdForm}
-                labelCol={{span:4}}
-                wrapperCol={{span:20}}
+                labelCol={{span:8}}
+                wrapperCol={{span:16}}
                 onFinish={(submitModifyPwd)}
+                style={{width: '40vh'}}
 
               >
-                <Form.Item name='oldPwd' label='旧密码:'>
-                  <Input.Password placeholder='请输入旧密码'/>
+                <Form.Item name='oldPwd' label='Old Password:'>
+                  <Input.Password placeholder='Please input your password'/>
                 </Form.Item>
-                <Form.Item name='newPwd' label='新密码:'>
-                  <Input.Password placeholder='请输入新密码'/>
+                <Form.Item name='newPwd' label='New Password:'>
+                  <Input.Password placeholder='please input your new password'/>
                 </Form.Item>
-                <Form.Item name='repeatPwd' label='重复密码:'>
-                  <Input.Password placeholder='请再输入一次密码'/>
+                <Form.Item name='repeatPwd' label='Confirm Password:'>
+                  <Input.Password placeholder='please input your new password again'/>
                 </Form.Item>
               </Form>
             </Divider>
